@@ -78,7 +78,17 @@ import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
+import org.bukkit.permissions.PermissionDefault;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.plugin.java.annotation.command.Commands;
+import org.bukkit.plugin.java.annotation.dependency.SoftDependency;
+import org.bukkit.plugin.java.annotation.permission.Permission;
+import org.bukkit.plugin.java.annotation.permission.Permissions;
+import org.bukkit.plugin.java.annotation.plugin.ApiVersion.Target;
+import org.bukkit.plugin.java.annotation.plugin.ApiVersion;
+import org.bukkit.plugin.java.annotation.plugin.Description;
+import org.bukkit.plugin.java.annotation.plugin.Plugin;
+import org.bukkit.plugin.java.annotation.plugin.author.Author;
 import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -86,6 +96,24 @@ import org.bukkit.potion.PotionType;
 import org.bukkit.util.BlockIterator;
 import org.bukkit.util.Vector;
 
+@Plugin(name = "InfernalMobs", version = "6.3-tori1")
+@Author(value = "Eliminator")
+@ApiVersion(Target.v1_13)
+@SoftDependency(value = "Vault")
+@SoftDependency(value = "WizardlyMagic")
+@Commands(@org.bukkit.plugin.java.annotation.command.Command(
+    name = "infernalmobs",
+    desc = "This is the infernal mobs base commands.",
+    aliases = {"im"},
+    permission = "infernal_mobs.commands",
+    permissionMessage = "You don't have <permission>",
+    usage = "/<command>"
+))
+@Permissions(@Permission(
+    name = "infernal_mobs.commands",
+    desc = "Allows to tweak infernal mobs",
+    defaultValue = PermissionDefault.OP
+))
 @SuppressWarnings({"unchecked", "rawtypes", "deprecation"})
 public class infernal_mobs extends JavaPlugin implements Listener {
     GUI gui;

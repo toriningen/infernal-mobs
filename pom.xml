@@ -39,6 +39,13 @@
           </execution>
         </executions>
         <configuration>
+          <annotationProcessorPaths>
+            <path>
+              <groupId>org.spigotmc</groupId>
+              <artifactId>plugin-annotations</artifactId>
+              <version>1.2.3-SNAPSHOT</version>
+            </path>
+          </annotationProcessorPaths>
           <descriptorRefs>
             <descriptorRef>jar-with-dependencies</descriptorRef>
           </descriptorRefs>
@@ -60,6 +67,12 @@
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot-api</artifactId>
       <version>1.16.4-R0.1-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.spigotmc</groupId>
+      <artifactId>plugin-annotations</artifactId>
+      <version>1.2.3-SNAPSHOT</version>
       <scope>provided</scope>
     </dependency>
   </dependencies>
