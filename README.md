@@ -9,3 +9,11 @@ You can use it for private purposes or for non-commercial purposes if you give t
 You MUST also link your changed source.
 
 Thank you.
+
+## Build instructions
+
+Install maven. Clone the repo.
+
+Run `mvn package` in the repo root.
+
+Collect resulting plugin from `target/InfernalMobs-6.3-tori1.jar`.
