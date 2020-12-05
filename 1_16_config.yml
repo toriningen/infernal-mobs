@@ -236,7 +236,7 @@ enabledMounts:
 - SLIME
 - GHAST
 - MAGMA_CUBE
-- ENDER_DRAGON
+#- ENDER_DRAGON
 - BAT
 - PIG
 - SHEEP
