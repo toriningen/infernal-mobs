@@ -1,6 +1,6 @@
 # README #
 
-This is the Infernal Mobs source code. 
+This is the modified Infernal Mobs source code. Original can be found at https://bitbucket.org/Eliminator/infernalmobs/.
 
 Released under the License: (CC BY-NC-SA 2.5 CA)
 https://creativecommons.org/licenses/by-nc-sa/2.5/ca/
