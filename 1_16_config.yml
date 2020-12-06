@@ -302,4 +302,4 @@ naturalSpawnHeight: 0
 # Do players in Creative get fireballed?
 attackCreativePlayers: false
 # How long to track and attack the player after losing the line of sight
-rancorTicks: 200
+rancorTicks: 1200

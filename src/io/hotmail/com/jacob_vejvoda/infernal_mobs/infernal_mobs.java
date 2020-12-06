@@ -1205,7 +1205,7 @@ public class infernal_mobs extends JavaPlugin implements Listener {
                                     InfernalMob infMob = infernalList.get(idSearch(mob.getUniqueId()));
                                     World thisWorld = mob.getWorld();
                                     long now = thisWorld.getFullTime();
-                                    long willForgetAt = now + getConfig().getInt("rancorTicks"); // in 10 seconds
+                                    long willForgetAt = now + getConfig().getInt("rancorTicks");
 
                                     // remember everyone visible
                                     for (Player player : visibleTargets) {
