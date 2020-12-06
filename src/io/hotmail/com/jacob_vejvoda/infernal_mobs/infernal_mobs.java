@@ -2,16 +2,7 @@ package io.hotmail.com.jacob_vejvoda.infernal_mobs;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -1174,7 +1165,7 @@ public class infernal_mobs extends JavaPlugin implements Listener {
                                     ArrayList<Player> near = (ArrayList<Player>) mob.getWorld().getPlayers();
                                     for (Player player : near) {
                                         if (player.getLocation().distance(mob.getLocation()) <= radius) {
-                                            if ((!player.isSneaking()) && (!player.getGameMode().equals(GameMode.CREATIVE))) {
+                                            if ((!player.isSneaking()) && canInitiateAttackOnEntity(player)) {
                                                 player.setVelocity(mob.getLocation().toVector().subtract(player.getLocation().toVector()));
                                             }
                                         }
@@ -1189,7 +1180,7 @@ public class infernal_mobs extends JavaPlugin implements Listener {
                                             Location feetBlock = player.getLocation();
                                             feetBlock.setY(feetBlock.getY() - 2);
                                             Block block = feetBlock.getWorld().getBlockAt(feetBlock);
-                                            if ((!block.getType().equals(Material.AIR)) && (!player.getGameMode().equals(GameMode.CREATIVE))) {
+                                            if ((!block.getType().equals(Material.AIR)) && canInitiateAttackOnEntity(player)) {
                                                 int amount = 6;
                                                 if (getConfig().getString("gravityLevitateLength") != null) {
                                                     amount = getConfig().getInt("gravityLevitateLength");
@@ -1202,28 +1193,57 @@ public class infernal_mobs extends JavaPlugin implements Listener {
                             } else if ((ability.equals("ghastly")) || (ability.equals("necromancer"))) {
                                 if ((randomNum == 6) && (!mob.isDead())) {
                                     double radius = 20D;
-                                    ArrayList<Player> near = (ArrayList<Player>) mob.getWorld().getPlayers();
-                                    for (Player player : near) {
-                                        if ((player.getLocation().distance(mob.getLocation()) <= radius) && (!player.getGameMode().equals(GameMode.CREATIVE))) {
-                                            Fireball fb = null;
-                                            if (ability.equals("ghastly")) {
-                                                fb = ((LivingEntity) mob).launchProjectile(Fireball.class);
-                                                player.getWorld().playSound(player.getLocation(), Sound.AMBIENT_CAVE, 5, 1);
-                                            } else {
-                                                fb = ((LivingEntity) mob).launchProjectile(WitherSkull.class);
-                                            }
-                                            //Location loc1 = player.getEyeLocation();
-                                            //Location loc2 = mob.getLocation();
-                                            //int arrowSpeed = 1;
-                                            //loc2.setY(loc2.getBlockY()+2);
-                                            //loc2.setX(loc2.getBlockX()+0.5);
-                                            //loc2.setZ(loc2.getBlockZ()+0.5);
-                                            //Arrow ar = mob.getWorld().spawnArrow(loc2, new Vector(loc1.getX()-loc2.getX(), loc1.getY()-loc2.getY(), loc1.getZ()-loc2.getZ()), arrowSpeed, 12);
-                                            //Vector vel = ar.getVelocity();
-                                            //fb.setVelocity(vel);
-                                            //ar.remove();
-                                            moveToward(fb, player.getLocation(), 0.6);
+                                    Location myLocation = mob.getLocation();
+
+                                    ArrayList<Player> nearbyTargets = (ArrayList<Player>) mob.getWorld().getPlayers();
+                                    nearbyTargets.removeIf(player -> player.getLocation().distance(myLocation) > radius);
+                                    HashSet<Entity> nearbyTargetsSet = new HashSet(nearbyTargets);
+
+                                    ArrayList<Player> visibleTargets = new ArrayList<>(nearbyTargets);
+                                    visibleTargets.removeIf(player -> !player.hasLineOfSight(mob));
+
+                                    InfernalMob infMob = infernalList.get(idSearch(mob.getUniqueId()));
+                                    World thisWorld = mob.getWorld();
+                                    long now = thisWorld.getFullTime();
+                                    long willForgetAt = now + getConfig().getInt("rancorTicks"); // in 10 seconds
+
+                                    // remember everyone visible
+                                    for (Player player : visibleTargets) {
+                                        infMob.rancorTargets.put(player, new AbstractMap.SimpleImmutableEntry<World, Long>(thisWorld, willForgetAt));
+                                    }
+
+                                    // forget those who weren't seen for long enough
+                                    Iterator it = infMob.rancorTargets.entrySet().iterator();
+                                    while (it.hasNext()) {
+                                        Map.Entry<Entity, AbstractMap.SimpleImmutableEntry<World, Long>> kv = (Map.Entry) it.next();
+                                        World targetWorld = kv.getValue().getKey();
+                                        long targetForgetAt = kv.getValue().getValue();
+                                        if (thisWorld != targetWorld) {
+                                            continue;
                                         }
+                                        if (now >= targetForgetAt) {
+                                            it.remove();
+                                        }
+                                    }
+
+                                    // attack everyone remembered if still in range
+                                    for (Entity target : infMob.rancorTargets.keySet()) {
+                                        if (!canInitiateAttackOnEntity(target)) {
+                                            continue;
+                                        }
+                                        if (!nearbyTargetsSet.contains(target)) {
+                                            continue;
+                                        }
+
+                                        Fireball fb = null;
+                                        Location targetLoc = target.getLocation();
+                                        if (ability.equals("ghastly")) {
+                                            fb = ((LivingEntity) mob).launchProjectile(Fireball.class);
+                                            target.getWorld().playSound(targetLoc, Sound.AMBIENT_CAVE, 5, 1);
+                                        } else {
+                                            fb = ((LivingEntity) mob).launchProjectile(WitherSkull.class);
+                                        }
+                                        moveToward(fb, targetLoc, 0.6);
                                     }
                                 }
                             }
@@ -1893,6 +1913,25 @@ public class infernal_mobs extends JavaPlugin implements Listener {
             } catch (Exception ignored) {
             }
         }, 2L);
+    }
+
+    private boolean canInitiateAttackOnEntity(Entity e) {
+        // only challenge players
+        if (!(e instanceof Player)) {
+            return false;
+        }
+
+        GameMode gm = ((Player) e).getGameMode();
+        
+        if (gm.equals(GameMode.SPECTATOR)) {
+            return false;
+        }
+        
+        if (gm.equals(GameMode.SURVIVAL) || gm.equals(GameMode.ADVENTURE)) {
+            return true;
+        }
+        
+        return (gm.equals(GameMode.CREATIVE) && getConfig().getBoolean("attackCreativePlayers"));
     }
 
     private boolean isLegitVictim(Entity e, boolean playerIsVictom, String ability) {

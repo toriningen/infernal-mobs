@@ -299,3 +299,7 @@ enableDrops: true
 dropChance: 1
 enableFarmingDrops: false
 naturalSpawnHeight: 0
+# Do players in Creative get fireballed?
+attackCreativePlayers: false
+# How long to track and attack the player after losing the line of sight
+rancorTicks: 200
