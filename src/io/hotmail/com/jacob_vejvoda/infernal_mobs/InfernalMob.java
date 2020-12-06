@@ -1,9 +1,9 @@
 package io.hotmail.com.jacob_vejvoda.infernal_mobs;
 
+import org.bukkit.World;
 import org.bukkit.entity.Entity;
 
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 class InfernalMob {
     private boolean infernal;
@@ -12,6 +12,7 @@ class InfernalMob {
     int lives;
     String effect;
     List<String> abilityList;
+    Map<Entity, AbstractMap.SimpleImmutableEntry<World, Long>> rancorTargets = null; // entity -> [world, absolute tick when to forget]
 
     InfernalMob(Entity type, UUID i, boolean in, List<String> l, int li, String e) {
         this.entity = type;
@@ -20,6 +21,8 @@ class InfernalMob {
         this.abilityList = l;
         this.lives = li;
         this.effect = e;
+        
+        this.rancorTargets = new HashMap<>();
     }
 
     public String toString() {

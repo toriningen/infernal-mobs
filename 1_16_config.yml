@@ -236,7 +236,7 @@ enabledMounts:
 - SLIME
 - GHAST
 - MAGMA_CUBE
-- ENDER_DRAGON
+#- ENDER_DRAGON
 - BAT
 - PIG
 - SHEEP
@@ -260,7 +260,7 @@ enabledRiders:
 - SKELETON
 - ZOMBIE
 - PIG_ZOMBIE
-- ENDERMAN
+#- ENDERMAN
 - WITCH
 - SNOWMAN
 - VILLAGER
@@ -299,3 +299,7 @@ enableDrops: true
 dropChance: 1
 enableFarmingDrops: false
 naturalSpawnHeight: 0
+# Do players in Creative get fireballed?
+attackCreativePlayers: false
+# How long to track and attack the player after losing the line of sight
+rancorTicks: 1200
